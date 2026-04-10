@@ -1,0 +1,27 @@
+using cCoder.Scheduling.Models;
+using cCoder.Data.Models.CMS;
+using cCoder.Data.Models.Planning;
+using cCoder.Data.Models.Security;
+using cCoder.Data.Models.Workflow;
+using cCoder.Scheduling.Services.Foundations.Events;
+
+
+namespace cCoder.Scheduling.Services.Processings;
+
+internal class CalendarEventEventProcessingService(ICalendarEventEventService eventService) : ICalendarEventEventProcessingService
+{
+    public ValueTask RaiseCalendarEventAddEventAsync(CalendarEvent entity) => eventService.RaiseCalendarEventAddEventAsync(entity);
+
+    public ValueTask RaiseCalendarEventUpdateEventAsync(CalendarEvent entity) => eventService.RaiseCalendarEventUpdateEventAsync(entity);
+
+    public ValueTask RaiseCalendarEventDeleteEventAsync(CalendarEvent entity) => eventService.RaiseCalendarEventDeleteEventAsync(entity);
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,25 @@
+using cCoder.Scheduling.Models;
+using cCoder.Data.Models.CMS;
+using cCoder.Data.Models.Planning;
+using cCoder.Data.Models.Security;
+using cCoder.Data.Models.Workflow;
+
+
+namespace cCoder.Scheduling.Services.Foundations.Events;
+
+public interface IScheduledTaskEventService
+{
+    ValueTask RaiseScheduledTaskAddEventAsync(ScheduledTask entity);
+    ValueTask RaiseScheduledTaskUpdateEventAsync(ScheduledTask entity);
+    ValueTask RaiseScheduledTaskDeleteEventAsync(ScheduledTask entity);
+}
+
+
+
+
+
+
+
+
+
+
