@@ -16,6 +16,7 @@
     <PackageReference Include="cCoder.Security.Data.EF" Version="2026.2.10.1440" />
     <PackageReference Include="cCoder.Security.Data.EF.MSSQL" Version="2026.2.10.1440" />
     <PackageReference Include="cCoder.Security.Objects" Version="2026.2.10.1440" />
+    <PackageReference Include="cCoder.Workflow" Version="2026.4.10.1330" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cCoder.Scheduling\cCoder.Scheduling.csproj" />

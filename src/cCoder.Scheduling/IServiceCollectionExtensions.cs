@@ -79,7 +79,6 @@ public static class IServiceCollectionExtensions
         services.AddTransient<IScheduledTaskEventBroker, ScheduledTaskEventBroker>();
         services.AddTransient<ICalendarBroker, CalendarBroker>();
         services.AddTransient<ICalendarEventBroker, CalendarEventBroker>();
-        services.AddTransient<IFlowQueueBroker, FlowQueueBroker>();
         services.AddTransient<IScheduledTaskBroker, ScheduledTaskBroker>();
         services.AddTransient<IAuthorizationBroker, AuthorizationBroker>();
         services.AddTransient<IJsonBroker, JsonBroker>();
@@ -100,7 +99,6 @@ public static class IServiceCollectionExtensions
         services.AddTransient<Services.Foundations.Events.IEventHandlerService, Services.Foundations.Events.EventHandlerService>();
         services.AddTransient<ICalendarEventService, CalendarEventService>();
         services.AddTransient<ICalendarService, CalendarService>();
-        services.AddTransient<IFlowQueueService, FlowQueueService>();
         services.AddTransient<ISchedulingMetadataTypeService, SchedulingMetadataTypeService>();
         services.AddTransient<IScheduledTaskService, ScheduledTaskService>();
         services.AddTransient<ICalendarEntityEventService, CalendarEntityEventService>();
@@ -114,7 +112,6 @@ public static class IServiceCollectionExtensions
         services.AddTransient<ISchedulingMigrationAggregationService, SchedulingMigrationAggregationService>();
         services.AddTransient<ICalendarEventOrchestrationService, CalendarEventOrchestrationService>();
         services.AddTransient<ICalendarOrchestrationService, CalendarOrchestrationService>();
-        services.AddTransient<IFlowQueueOrchestrationService, FlowQueueOrchestrationService>();
         services.AddTransient<IScheduledTaskOrchestrationService, ScheduledTaskOrchestrationService>();
         services.AddTransient<ITaskRunnerOrchestrationService, TaskRunnerOrchestrationService>();
     }

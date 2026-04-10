@@ -48,6 +48,17 @@ internal class ScheduledTaskEventService(
         await scheduledTaskEventBroker.RaiseScheduledTaskDeleteEventAsync(message);
     }
 
+    public async ValueTask RaiseScheduledTaskExecuteEventAsync(ScheduledTask entity)
+    {
+        EventMessage<cCoder.Data.Models.Planning.ScheduledTask> message = new()
+        {
+            AuthInfo = new EventAuthInfo { SSOUserId = authInfo.SSOUserId },
+            Data = ToInternalScheduledTask(entity),
+        };
+
+        await scheduledTaskEventBroker.RaiseScheduledTaskExecuteEventAsync(message);
+    }
+
     private static cCoder.Data.Models.Planning.ScheduledTask ToInternalScheduledTask(
         ScheduledTask item
     ) =>

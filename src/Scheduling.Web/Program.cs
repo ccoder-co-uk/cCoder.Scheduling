@@ -2,6 +2,7 @@ using System.Security;
 using Apps.Shared;
 using Apps.Shared.Models;
 using cCoder.Scheduling;
+using cCoder.Workflow;
 using cCoder.Security.Api;
 using cCoder.Security.Data.EF.MSSQL;
 using cCoder.Security.Objects;
@@ -43,6 +44,7 @@ public class Program
             builder.Services,
             coreConnection);
 
+        builder.Services.AddWorkflow();
         builder.Services.AddSchedulingApi();
         builder.Services.AddSchedulingHostedServices();
 
@@ -65,6 +67,7 @@ public class Program
         app.UseDomainApiShell();
         app.UseDomainDefaultCors();
         app.UseDomainExceptionHandling(HandleUnhandledException);
+        app.UseWorkflowScheduledTaskExecutionHandlers();
         app.UseSchedulingEventHandlers();
         app.Run();
     }

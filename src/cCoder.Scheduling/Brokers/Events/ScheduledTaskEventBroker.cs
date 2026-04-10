@@ -15,6 +15,9 @@ public class ScheduledTaskEventBroker(IEventHub eventHub) : IScheduledTaskEventB
 
     public ValueTask RaiseScheduledTaskDeleteEventAsync(EventMessage<ScheduledTask> message) =>
         eventHub.RaiseEventAsync("scheduled_task_delete", message);
+
+    public ValueTask RaiseScheduledTaskExecuteEventAsync(EventMessage<ScheduledTask> message) =>
+        eventHub.RaiseEventAsync("scheduled_task_execute", message);
 }
 
 

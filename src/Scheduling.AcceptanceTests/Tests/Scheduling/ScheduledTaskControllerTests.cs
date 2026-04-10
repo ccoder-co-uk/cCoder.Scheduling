@@ -6,8 +6,6 @@ using cCoder.Data.Extensions;
 using cCoder.Data.Models.Planning;
 using cCoder.Data.Models.Security;
 using cCoder.Data.Models.Workflow;
-using cCoder.Workflow.Activities;
-using cCoder.Workflow.Activities.Models;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Web.AcceptanceTests.Infrastructure;
@@ -53,12 +51,8 @@ public sealed partial class ScheduledTaskControllerTests(WebAcceptanceFixture fi
             AppId = AppId,
             Name = Unique("Flow"),
             Description = "Acceptance flow",
-            DefinitionJson = new Flow
-            {
-                Name = "Acceptance",
-                Activities = [new Start { Ref = "start" }],
-                Links = [],
-            }.ToJson(),
+            DefinitionJson =
+                "{\"Name\":\"Acceptance\",\"Activities\":[{\"$type\":\"cCoder.Core.Objects.Workflow.Activities.Start, cCoder.Core.Objects\",\"Ref\":\"start\"}],\"Links\":[]}",
             ConfigJson = "{}",
         });
 

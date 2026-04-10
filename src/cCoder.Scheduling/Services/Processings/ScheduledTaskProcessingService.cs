@@ -6,11 +6,13 @@ using cCoder.Data.Models.Planning;
 using cCoder.Data.Models.Security;
 using cCoder.Data.Models.Workflow;
 using cCoder.Scheduling.Services.Foundations;
-using cCoder.Scheduling.Services.Orchestrations;
 
 namespace cCoder.Scheduling.Services.Processings;
 
-internal class ScheduledTaskProcessingService(IScheduledTaskService service, IAuthorizationBroker authorizationBroker, IFlowQueueOrchestrationService flowQueueOrchestrationService) : IScheduledTaskProcessingService
+internal class ScheduledTaskProcessingService(
+    IScheduledTaskService service,
+    IAuthorizationBroker authorizationBroker,
+    IScheduledTaskEventProcessingService scheduledTaskEventProcessingService) : IScheduledTaskProcessingService
 {
     public ScheduledTask Get(int id)
     {
@@ -28,7 +30,7 @@ internal class ScheduledTaskProcessingService(IScheduledTaskService service, IAu
         if (task != null && authorizationBroker.IsAdminOfApp(task.AppId))
         {
             ScheduledTask updatedTask = await service.MarkExecutedAsync(id, incrementNextExecution);
-            await flowQueueOrchestrationService.QueueAsync(updatedTask.FlowId, updatedTask.ExecuteAs, updatedTask.ExecutionArgs);
+            await scheduledTaskEventProcessingService.RaiseScheduledTaskExecuteEventAsync(updatedTask);
             return;
         }
         throw new SecurityException("Access Denied!");

@@ -20,20 +20,20 @@ public partial class ScheduledTaskProcessingServiceTests
         scheduledTaskServiceMock
             .Setup(x => x.MarkExecutedAsync(task.Id, false))
             .ReturnsAsync(task);
-        flowQueueOrchestrationServiceMock
-            .Setup(x => x.QueueAsync(task.FlowId, task.ExecuteAs, "{}"))
-            .ReturnsAsync(Guid.NewGuid());
+        scheduledTaskEventProcessingServiceMock
+            .Setup(x => x.RaiseScheduledTaskExecuteEventAsync(task))
+            .Returns(ValueTask.CompletedTask);
 
         await scheduledTaskProcessingService.ExecuteAsync(task.Id, false);
 
         scheduledTaskServiceMock.Verify(x => x.GetForExecution(task.Id), Times.Once);
         scheduledTaskServiceMock.Verify(x => x.MarkExecutedAsync(task.Id, false), Times.Once);
-        flowQueueOrchestrationServiceMock.Verify(
-            x => x.QueueAsync(task.FlowId, task.ExecuteAs, "{}"),
+        scheduledTaskEventProcessingServiceMock.Verify(
+            x => x.RaiseScheduledTaskExecuteEventAsync(task),
             Times.Once
         );
         scheduledTaskServiceMock.VerifyNoOtherCalls();
-        flowQueueOrchestrationServiceMock.VerifyNoOtherCalls();
+        scheduledTaskEventProcessingServiceMock.VerifyNoOtherCalls();
     }
 
 }

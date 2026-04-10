@@ -1,5 +1,6 @@
 using cCoder.Data.Models.Planning;
 using cCoder.Scheduling.Services.Foundations;
+using cCoder.Scheduling.Services.Processings;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -8,7 +9,7 @@ namespace cCoder.Scheduling.Services.Orchestrations;
 internal sealed class TaskRunnerOrchestrationService(
     IScheduledTaskService scheduledTaskService,
     ICalendarEventService calendarEventService,
-    IFlowQueueOrchestrationService flowQueueOrchestrationService,
+    IScheduledTaskEventProcessingService scheduledTaskEventProcessingService,
     ILogger<TaskRunnerOrchestrationService> log)
     : ITaskRunnerOrchestrationService
 {
@@ -96,14 +97,13 @@ internal sealed class TaskRunnerOrchestrationService(
         ScheduledTask task,
         CancellationToken cancellationToken)
     {
-        _ = await scheduledTaskService.MarkExecutedAsync(task.Id, incrementNextExecution: true);
+        ScheduledTask updatedTask = await scheduledTaskService.MarkExecutedAsync(
+            task.Id,
+            incrementNextExecution: true);
 
         if (task.ExecuteAsUser == null)
             throw new InvalidOperationException("User doesn't exist.");
 
-        _ = await flowQueueOrchestrationService.QueueAsync(
-            task.FlowId,
-            task.ExecuteAs,
-            task.ExecutionArgs);
+        await scheduledTaskEventProcessingService.RaiseScheduledTaskExecuteEventAsync(updatedTask);
     }
 }

@@ -4,7 +4,6 @@ using cCoder.Data.Models.Planning;
 using cCoder.Data.Models.Security;
 using cCoder.Data.Models.Workflow;
 using cCoder.Scheduling.Services.Foundations;
-using cCoder.Scheduling.Services.Orchestrations;
 using cCoder.Scheduling.Services.Processings;
 using FizzWare.NBuilder;
 using Moq;
@@ -17,7 +16,7 @@ public partial class ScheduledTaskProcessingServiceTests
 {
     private readonly Mock<IScheduledTaskService> scheduledTaskServiceMock = new();
     private readonly Mock<IAuthorizationBroker> authorizationBrokerMock = new();
-    private readonly Mock<IFlowQueueOrchestrationService> flowQueueOrchestrationServiceMock = new();
+    private readonly Mock<IScheduledTaskEventProcessingService> scheduledTaskEventProcessingServiceMock = new();
     private readonly ScheduledTaskProcessingService scheduledTaskProcessingService;
 
     public ScheduledTaskProcessingServiceTests()
@@ -25,7 +24,7 @@ public partial class ScheduledTaskProcessingServiceTests
         scheduledTaskProcessingService = new ScheduledTaskProcessingService(
             scheduledTaskServiceMock.Object,
             authorizationBrokerMock.Object,
-            flowQueueOrchestrationServiceMock.Object
+            scheduledTaskEventProcessingServiceMock.Object
         );
     }
 
