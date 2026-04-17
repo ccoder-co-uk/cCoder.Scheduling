@@ -46,7 +46,7 @@ public static partial class IServiceCollectionExtensions
         return configuration;
     }
 
-    internal static void ConfigureSchedulingApiModel(this ODataConventionModelBuilder builder) =>
+    public static void ConfigureSchedulingApiModel(this ODataConventionModelBuilder builder) =>
         new SchedulingModelBuilder(builder).Configure();
 
     private static SchedulingConfiguration CreateConfiguration(
