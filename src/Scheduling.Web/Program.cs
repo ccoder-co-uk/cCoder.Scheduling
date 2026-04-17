@@ -3,6 +3,7 @@ using Apps.Shared;
 using Apps.Shared.Models;
 using cCoder.Scheduling;
 using cCoder.Workflow;
+using cCoder.Security;
 using cCoder.Security.Api;
 using cCoder.Security.Data.EF.MSSQL;
 using cCoder.Security.Objects;
