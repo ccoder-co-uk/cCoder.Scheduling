@@ -4,19 +4,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
+  <PropertyGroup>
+    <LocalWorkflowProject>..\..\..\cCoder.Workflow\src\cCoder.Workflow\cCoder.Workflow.csproj</LocalWorkflowProject>
+    <UseLocalWorkflow Condition="'$(UseLocalWorkflow)' == '' and Exists('$(LocalWorkflowProject)')">true</UseLocalWorkflow>
+    <UseLocalWorkflow Condition="'$(UseLocalWorkflow)' == ''">false</UseLocalWorkflow>
+    <UseLocalWorkflow Condition="'$(UseLocalWorkflow)' == 'true' and !Exists('$(LocalWorkflowProject)')">false</UseLocalWorkflow>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseLocalWorkflow)' == 'true'">
+    <ProjectReference Include="$(LocalWorkflowProject)" AdditionalProperties="UseLocalData=true;UseLocalSecurity=true" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.4.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.5" />
-    <PackageReference Include="cCoder.Data" Version="2026.4.10.1156" />
+    <PackageReference Include="cCoder.Data" Version="2026.4.17.1729" />
     <PackageReference Include="cCoder.Eventing.EventLibrary" Version="2026.4.15.1800" />
-    <PackageReference Include="cCoder.Security.Api" Version="2026.2.10.1440" />
-    <PackageReference Include="cCoder.Security.Data.EF" Version="2026.2.10.1440" />
-    <PackageReference Include="cCoder.Security.Data.EF.MSSQL" Version="2026.2.10.1440" />
-    <PackageReference Include="cCoder.Security.Objects" Version="2026.2.10.1440" />
-    <PackageReference Include="cCoder.Workflow" Version="2026.4.10.1330" />
+    <PackageReference Include="cCoder.Security" Version="2026.4.17.1806" />
+    <PackageReference Include="cCoder.Security.Data.EF.MSSQL" Version="2026.4.17.1806" />
+    <PackageReference Include="cCoder.Workflow" Version="2026.4.15.2020" Condition="'$(UseLocalWorkflow)' != 'true'" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cCoder.Scheduling\cCoder.Scheduling.csproj" />
