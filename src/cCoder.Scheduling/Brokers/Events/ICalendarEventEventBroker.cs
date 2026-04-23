@@ -1,5 +1,5 @@
 using cCoder.Data.Models.Planning;
-using EventLibrary.Models;
+using cCoder.Eventing.Models;
 
 
 namespace cCoder.Scheduling.Brokers.Events;

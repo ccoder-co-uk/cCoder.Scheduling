@@ -13,7 +13,7 @@ using cCoder.Scheduling.Services.Foundations;
 using cCoder.Scheduling.Services.Foundations.Events;
 using cCoder.Scheduling.Services.Orchestrations;
 using cCoder.Scheduling.Services.Processings;
-using EventLibrary;
+using cCoder.Eventing;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
