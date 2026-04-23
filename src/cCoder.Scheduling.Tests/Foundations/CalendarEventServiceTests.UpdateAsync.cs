@@ -29,8 +29,10 @@ public partial class CalendarEventServiceTests
         CalendarEvent result = await calendarEventService.UpdateAsync(calendarEvent);
 
         // Then
-        result.Should().NotBeSameAs(calendarEvent);
+        result.Should().BeSameAs(calendarEvent);
         submitted.Should().NotBeNull();
+        submitted.Should().NotBeSameAs(calendarEvent);
+        result.Should().NotBeSameAs(submitted);
         submitted.Should().BeEquivalentTo(calendarEvent);
         result.Should().BeEquivalentTo(calendarEvent);
         calendarEventBrokerMock.Verify(

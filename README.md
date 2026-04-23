@@ -16,13 +16,13 @@
 ## Build
 
 ```powershell
-dotnet build cCoder.Scheduling.sln -v minimal
+dotnet build src/cCoder.Scheduling.sln -v minimal
 ```
 
 ## Test
 
 ```powershell
-dotnet test cCoder.Scheduling.sln -v minimal --no-build
+dotnet test src/cCoder.Scheduling.sln -v minimal --no-build
 ```
 
 ## Package

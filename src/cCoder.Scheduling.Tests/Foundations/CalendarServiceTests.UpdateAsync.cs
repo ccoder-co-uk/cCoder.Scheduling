@@ -30,8 +30,10 @@ public partial class CalendarServiceTests
         Calendar result = await calendarService.UpdateAsync(calendar);
 
         // Then
-        result.Should().NotBeSameAs(calendar);
+        result.Should().BeSameAs(calendar);
         submitted.Should().NotBeNull();
+        submitted.Should().NotBeSameAs(calendar);
+        result.Should().NotBeSameAs(submitted);
         submitted.Should().BeEquivalentTo(calendar, options => options.Excluding(candidate => candidate.Events));
         result.Should().BeEquivalentTo(calendar, options => options.Excluding(candidate => candidate.Events));
         calendarBrokerMock.Verify(x => x.UpdateCalendarAsync(It.IsAny<Calendar>()), Times.Once);
