@@ -33,8 +33,10 @@ public partial class CalendarEventServiceTests
         CalendarEvent result = await calendarEventService.AddAsync(calendarEvent);
 
         // Then
-        result.Should().NotBeSameAs(calendarEvent);
+        result.Should().BeSameAs(calendarEvent);
         submitted.Should().NotBeNull();
+        submitted.Should().NotBeSameAs(calendarEvent);
+        result.Should().NotBeSameAs(submitted);
 
         submitted
             .Should()

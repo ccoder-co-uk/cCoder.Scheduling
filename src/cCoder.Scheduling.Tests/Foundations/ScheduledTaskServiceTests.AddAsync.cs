@@ -36,8 +36,10 @@ public partial class ScheduledTaskServiceTests
         ScheduledTask result = await scheduledTaskService.AddAsync(scheduledTask);
 
         // Then
-        result.Should().NotBeSameAs(scheduledTask);
+        result.Should().BeSameAs(scheduledTask);
         submitted.Should().NotBeNull();
+        submitted.Should().NotBeSameAs(scheduledTask);
+        result.Should().NotBeSameAs(submitted);
 
         submitted
             .Should()

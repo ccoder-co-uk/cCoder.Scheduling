@@ -74,14 +74,24 @@ internal class ScheduledTaskService(
         newScheduledTask.LastUpdated = now;
         newScheduledTask.UpdatedBy = currentUserId;
 
-        newScheduledTask = await scheduledTaskBroker.AddScheduledTaskAsync(newScheduledTask);
-        return ToExternalScheduledTask(
-            newScheduledTask,
-            scheduledTask.ExecuteAsUser,
-            scheduledTask.App,
-            scheduledTask.Flow,
-            scheduledTask.ExcludedEventsCalendar
-        );
+        DataScheduledTask result = await scheduledTaskBroker.AddScheduledTaskAsync(newScheduledTask);
+        scheduledTask.Id = result.Id;
+        scheduledTask.AppId = result.AppId;
+        scheduledTask.FlowId = result.FlowId;
+        scheduledTask.ExcludedEventsCalendarId = result.ExcludedEventsCalendarId;
+        scheduledTask.ExcludedEventsName = result.ExcludedEventsName;
+        scheduledTask.Name = result.Name;
+        scheduledTask.Description = result.Description;
+        scheduledTask.ExecutionArgs = result.ExecutionArgs;
+        scheduledTask.ScheduleInTicks = result.ScheduleInTicks;
+        scheduledTask.CreatedBy = result.CreatedBy;
+        scheduledTask.UpdatedBy = result.UpdatedBy;
+        scheduledTask.ExecuteAs = result.ExecuteAs;
+        scheduledTask.Created = result.Created;
+        scheduledTask.LastUpdated = result.LastUpdated;
+        scheduledTask.LastExecuted = result.LastExecuted;
+        scheduledTask.NextExecution = result.NextExecution;
+        return scheduledTask;
     }
 
     public async ValueTask<ScheduledTask> UpdateAsync(ScheduledTask scheduledTask)
@@ -111,16 +121,26 @@ internal class ScheduledTaskService(
         updateScheduledTask.LastUpdated = now;
         updateScheduledTask.UpdatedBy = currentUserId;
 
-        updateScheduledTask = await scheduledTaskBroker.UpdateScheduledTaskAsync(
+        DataScheduledTask result = await scheduledTaskBroker.UpdateScheduledTaskAsync(
             updateScheduledTask
         );
-        return ToExternalScheduledTask(
-            updateScheduledTask,
-            scheduledTask.ExecuteAsUser,
-            scheduledTask.App,
-            scheduledTask.Flow,
-            scheduledTask.ExcludedEventsCalendar
-        );
+        scheduledTask.Id = result.Id;
+        scheduledTask.AppId = result.AppId;
+        scheduledTask.FlowId = result.FlowId;
+        scheduledTask.ExcludedEventsCalendarId = result.ExcludedEventsCalendarId;
+        scheduledTask.ExcludedEventsName = result.ExcludedEventsName;
+        scheduledTask.Name = result.Name;
+        scheduledTask.Description = result.Description;
+        scheduledTask.ExecutionArgs = result.ExecutionArgs;
+        scheduledTask.ScheduleInTicks = result.ScheduleInTicks;
+        scheduledTask.CreatedBy = result.CreatedBy;
+        scheduledTask.UpdatedBy = result.UpdatedBy;
+        scheduledTask.ExecuteAs = result.ExecuteAs;
+        scheduledTask.Created = result.Created;
+        scheduledTask.LastUpdated = result.LastUpdated;
+        scheduledTask.LastExecuted = result.LastExecuted;
+        scheduledTask.NextExecution = result.NextExecution;
+        return scheduledTask;
     }
 
     public async ValueTask DeleteAsync(int id)

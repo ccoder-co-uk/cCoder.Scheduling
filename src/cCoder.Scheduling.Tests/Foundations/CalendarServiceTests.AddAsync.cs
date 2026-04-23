@@ -34,8 +34,10 @@ public partial class CalendarServiceTests
         Calendar result = await calendarService.AddAsync(calendar);
 
         // Then
-        result.Should().NotBeSameAs(calendar);
+        result.Should().BeSameAs(calendar);
         submitted.Should().NotBeNull();
+        submitted.Should().NotBeSameAs(calendar);
+        result.Should().NotBeSameAs(submitted);
 
         submitted
             .Should()

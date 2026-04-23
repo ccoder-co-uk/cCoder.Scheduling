@@ -47,8 +47,14 @@ internal class CalendarEventService(
             CalendarId = calendarEvent.CalendarId,
         };
 
-        newCalendarEvent = await calendarEventBroker.AddCalendarEventAsync(newCalendarEvent);
-        return ToExternalCalendarEvent(newCalendarEvent, calendarEvent.Calendar);
+        DataCalendarEvent result = await calendarEventBroker.AddCalendarEventAsync(newCalendarEvent);
+        calendarEvent.Id = result.Id;
+        calendarEvent.Name = result.Name;
+        calendarEvent.Description = result.Description;
+        calendarEvent.Start = result.Start;
+        calendarEvent.DurationInTicks = result.DurationInTicks;
+        calendarEvent.CalendarId = result.CalendarId;
+        return calendarEvent;
     }
 
     public async ValueTask<CalendarEvent> UpdateAsync(CalendarEvent calendarEvent)
@@ -67,10 +73,16 @@ internal class CalendarEventService(
             CalendarId = calendarEvent.CalendarId,
         };
 
-        updateCalendarEvent = await calendarEventBroker.UpdateCalendarEventAsync(
+        DataCalendarEvent result = await calendarEventBroker.UpdateCalendarEventAsync(
             updateCalendarEvent
         );
-        return ToExternalCalendarEvent(updateCalendarEvent, calendarEvent.Calendar);
+        calendarEvent.Id = result.Id;
+        calendarEvent.Name = result.Name;
+        calendarEvent.Description = result.Description;
+        calendarEvent.Start = result.Start;
+        calendarEvent.DurationInTicks = result.DurationInTicks;
+        calendarEvent.CalendarId = result.CalendarId;
+        return calendarEvent;
     }
 
     public async ValueTask DeleteAsync(int id)
