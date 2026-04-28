@@ -10,24 +10,24 @@ using Microsoft.OpenApi;
 
 namespace cCoder.Scheduling;
 
-public static class SchedulingServiceCollectionConfigurationExtensions
+public static partial class IServiceCollectionExtensions
 {
-    public static SchedulingConfiguration AddScheduling(
+    private static SchedulingConfiguration AddConfiguredScheduling(
         this IServiceCollection services,
         Action<IServiceCollection, SchedulingConfiguration> configure)
     {
         SchedulingConfiguration configuration = CreateConfiguration(services, configure);
-        IServiceCollectionExtensions.AddScheduling(services);
+        services.AddScheduling();
         return configuration;
     }
 
-    public static SchedulingConfiguration AddSchedulingApi(
+    private static SchedulingConfiguration AddConfiguredSchedulingWeb(
         this IServiceCollection services,
         Action<IServiceCollection, SchedulingConfiguration> configure,
         ODataConventionModelBuilder builder = null)
     {
         SchedulingConfiguration configuration = CreateConfiguration(services, configure);
-        IServiceCollectionExtensions.AddScheduling(services);
+        services.AddSchedulingWeb(builder);
         services.AddConfiguredApi(
             configuration,
             "Scheduling",
@@ -37,12 +37,12 @@ public static class SchedulingServiceCollectionConfigurationExtensions
         return configuration;
     }
 
-    public static SchedulingConfiguration AddSchedulingHostedServices(
+    private static SchedulingConfiguration AddConfiguredSchedulingHostedServices(
         this IServiceCollection services,
         Action<IServiceCollection, SchedulingConfiguration> configure)
     {
         SchedulingConfiguration configuration = CreateConfiguration(services, configure);
-        IServiceCollectionExtensions.AddSchedulingHostedServices(services);
+        services.AddSchedulingHostedServices();
         return configuration;
     }
 

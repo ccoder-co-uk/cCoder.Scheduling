@@ -7,18 +7,25 @@ using cCoder.Scheduling.Services.Foundations;
 
 namespace cCoder.Scheduling;
 
-public static class WebApplicationExtensions
+public static partial class WebApplicationExtensions
 {
     private const string MetadataScope = "Scheduling";
 
-    public static WebApplication UseSchedulingExposure(this WebApplication app, ILogger log = null)
+    public static WebApplication StartSchedulingWeb(this WebApplication app, ILogger log = null) =>
+        app.UseSchedulingExposure(log)
+            .UseSchedulingEventHandlers();
+
+    public static WebApplication StartSchedulingHostedServices(this WebApplication app) =>
+        app.UseSchedulingEventHandlers();
+
+    private static WebApplication UseSchedulingExposure(this WebApplication app, ILogger log = null)
     {
         log?.LogInformation("Initialising Scheduling");
         PopulateMetadataTypeCache(app);
         return app;
     }
 
-    public static WebApplication UseSchedulingEventHandlers(this WebApplication app)
+    private static WebApplication UseSchedulingEventHandlers(this WebApplication app)
     {
         using IServiceScope scope = app.Services.CreateScope();
         IServiceProvider services = scope.ServiceProvider;
