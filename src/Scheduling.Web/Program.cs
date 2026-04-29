@@ -45,7 +45,7 @@ public class Program
             builder.Services,
             coreConnection);
 
-        builder.Services.AddWorkflowHostedServices();
+        builder.Services.AddWorkflow();
         builder.Services.AddSchedulingWeb();
         builder.Services.AddSchedulingHostedServices();
 
@@ -69,7 +69,7 @@ public class Program
         app.StartSchedulingWeb(log);
         app.UseDomainDefaultCors();
         app.UseDomainExceptionHandling(HandleUnhandledException);
-        app.StartWorkflowHostedServices();
+        app.UseWorkflowScheduledTaskExecutionHandlers();
         app.Run();
     }
 
