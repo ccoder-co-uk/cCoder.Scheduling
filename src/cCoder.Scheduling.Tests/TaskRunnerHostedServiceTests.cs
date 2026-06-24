@@ -15,6 +15,7 @@ public sealed class TaskRunnerHostedServiceTests
     public async Task StartAsync_ShouldRunTaskRunnerImmediately()
     {
         using CancellationTokenSource cancellationTokenSource = new();
+        TaskCompletionSource runStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<ITaskRunnerOrchestrationService> orchestrationServiceMock = new();
         Mock<IServiceProvider> serviceProviderMock = new();
         Mock<IServiceScope> serviceScopeMock = new();
@@ -27,7 +28,11 @@ public sealed class TaskRunnerHostedServiceTests
 
         orchestrationServiceMock
             .Setup(service => service.RunAsync(It.IsAny<CancellationToken>()))
-            .Callback<CancellationToken>(_ => cancellationTokenSource.Cancel())
+            .Callback<CancellationToken>(_ =>
+            {
+                runStarted.TrySetResult();
+                cancellationTokenSource.Cancel();
+            })
             .Returns(Task.CompletedTask);
 
         serviceProviderMock
@@ -51,6 +56,7 @@ public sealed class TaskRunnerHostedServiceTests
             loggerMock.Object);
 
         await service.StartAsync(cancellationTokenSource.Token);
+        await runStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
         Func<Task> stop = () => service.StopAsync(CancellationToken.None);
 
         await stop.Should().NotThrowAsync();
