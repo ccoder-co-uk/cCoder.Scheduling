@@ -1,12 +1,7 @@
 using System.Security;
+using cCoder.Scheduling.Brokers;
 using cCoder.Scheduling.Brokers.Storage;
-using cCoder.Scheduling.Models;
-using cCoder.Data.Models.CMS;
 using cCoder.Data.Models.Planning;
-using cCoder.Data.Models.Security;
-using cCoder.Data.Models.Workflow;
-using DataScheduledTask = cCoder.Data.Models.Planning.ScheduledTask;
-using IAuthorizationBroker = cCoder.Scheduling.Brokers.IAuthorizationBroker;
 
 
 namespace cCoder.Scheduling.Services.Foundations;
@@ -30,15 +25,13 @@ internal class ScheduledTaskService(
     }
 
     public ScheduledTask GetForExecution(int id) =>
-        ToExternalScheduledTask(scheduledTaskBroker.GetScheduledTaskForExecution(id));
+        scheduledTaskBroker.GetScheduledTaskForExecution(id);
 
     public IQueryable<ScheduledTask> GetAll(bool ignoreFilters = false) =>
         scheduledTaskBroker.GetAllScheduledTasks(ignoreFilters);
 
     public async ValueTask<ScheduledTask> MarkExecutedAsync(int id, bool incrementNextExecution) =>
-        ToExternalScheduledTask(
-            await scheduledTaskBroker.MarkScheduledTaskExecutedAsync(id, incrementNextExecution)
-        );
+        await scheduledTaskBroker.MarkScheduledTaskExecutedAsync(id, incrementNextExecution);
 
     public bool ExecuteAsUserBelongsToApp(string executeAs, int appId) =>
         scheduledTaskBroker.ExecuteAsUserBelongsToApp(executeAs, appId);
@@ -49,24 +42,7 @@ internal class ScheduledTaskService(
     public async ValueTask<ScheduledTask> AddAsync(ScheduledTask scheduledTask)
     {
         authorizationBroker.Authorize(scheduledTask.AppId, $"{nameof(ScheduledTask)}_create");
-        DataScheduledTask newScheduledTask = new()
-        {
-            AppId = scheduledTask.AppId,
-            FlowId = scheduledTask.FlowId,
-            ExcludedEventsCalendarId = scheduledTask.ExcludedEventsCalendarId,
-            ExcludedEventsName = scheduledTask.ExcludedEventsName,
-            Name = scheduledTask.Name,
-            Description = scheduledTask.Description,
-            ExecutionArgs = scheduledTask.ExecutionArgs,
-            ScheduleInTicks = scheduledTask.ScheduleInTicks,
-            CreatedBy = scheduledTask.CreatedBy,
-            UpdatedBy = scheduledTask.UpdatedBy,
-            ExecuteAs = scheduledTask.ExecuteAs,
-            Created = scheduledTask.Created,
-            LastUpdated = scheduledTask.LastUpdated,
-            LastExecuted = scheduledTask.LastExecuted,
-            NextExecution = scheduledTask.NextExecution,
-        };
+        ScheduledTask newScheduledTask = CreateStorageScheduledTask(scheduledTask);
         string currentUserId = authorizationBroker.GetCurrentUser().Id;
         DateTimeOffset now = DateTimeOffset.UtcNow;
         newScheduledTask.Created = now;
@@ -74,7 +50,7 @@ internal class ScheduledTaskService(
         newScheduledTask.LastUpdated = now;
         newScheduledTask.UpdatedBy = currentUserId;
 
-        DataScheduledTask result = await scheduledTaskBroker.AddScheduledTaskAsync(newScheduledTask);
+        ScheduledTask result = await scheduledTaskBroker.AddScheduledTaskAsync(newScheduledTask);
         scheduledTask.Id = result.Id;
         scheduledTask.AppId = result.AppId;
         scheduledTask.FlowId = result.FlowId;
@@ -97,31 +73,13 @@ internal class ScheduledTaskService(
     public async ValueTask<ScheduledTask> UpdateAsync(ScheduledTask scheduledTask)
     {
         authorizationBroker.Authorize(scheduledTask.AppId, $"{nameof(ScheduledTask)}_update");
-        DataScheduledTask updateScheduledTask = new()
-        {
-            Id = scheduledTask.Id,
-            AppId = scheduledTask.AppId,
-            FlowId = scheduledTask.FlowId,
-            ExcludedEventsCalendarId = scheduledTask.ExcludedEventsCalendarId,
-            ExcludedEventsName = scheduledTask.ExcludedEventsName,
-            Name = scheduledTask.Name,
-            Description = scheduledTask.Description,
-            ExecutionArgs = scheduledTask.ExecutionArgs,
-            ScheduleInTicks = scheduledTask.ScheduleInTicks,
-            CreatedBy = scheduledTask.CreatedBy,
-            UpdatedBy = scheduledTask.UpdatedBy,
-            ExecuteAs = scheduledTask.ExecuteAs,
-            Created = scheduledTask.Created,
-            LastUpdated = scheduledTask.LastUpdated,
-            LastExecuted = scheduledTask.LastExecuted,
-            NextExecution = scheduledTask.NextExecution,
-        };
+        ScheduledTask updateScheduledTask = CreateStorageScheduledTask(scheduledTask);
         string currentUserId = authorizationBroker.GetCurrentUser().Id;
         DateTimeOffset now = DateTimeOffset.UtcNow;
         updateScheduledTask.LastUpdated = now;
         updateScheduledTask.UpdatedBy = currentUserId;
 
-        DataScheduledTask result = await scheduledTaskBroker.UpdateScheduledTaskAsync(
+        ScheduledTask result = await scheduledTaskBroker.UpdateScheduledTaskAsync(
             updateScheduledTask
         );
         scheduledTask.Id = result.Id;
@@ -151,146 +109,35 @@ internal class ScheduledTaskService(
             return;
 
         authorizationBroker.Authorize(scheduledTask.AppId, $"{nameof(ScheduledTask)}_delete");
-        _ = await scheduledTaskBroker.DeleteScheduledTaskAsync(ToInternalScheduledTask(scheduledTask));
+        _ = await scheduledTaskBroker.DeleteScheduledTaskAsync(
+            CreateStorageScheduledTask(scheduledTask)
+        );
     }
 
-    private static ScheduledTask ToExternalScheduledTask(
-        DataScheduledTask item,
-        User originalExecuteAsUser = null,
-        App originalApp = null,
-        FlowDefinition originalFlow = null,
-        Calendar originalExcludedEventsCalendar = null
-    ) =>
+    private static ScheduledTask CreateStorageScheduledTask(ScheduledTask item) =>
         item == null
             ? null
-            :
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            FlowId = item.FlowId,
-            ExcludedEventsCalendarId = item.ExcludedEventsCalendarId,
-            ExcludedEventsName = item.ExcludedEventsName,
-            Name = item.Name,
-            Description = item.Description,
-            ExecutionArgs = item.ExecutionArgs,
-            ScheduleInTicks = item.ScheduleInTicks,
-            CreatedBy = item.CreatedBy,
-            UpdatedBy = item.UpdatedBy,
-            ExecuteAs = item.ExecuteAs,
-            Created = item.Created,
-            LastUpdated = item.LastUpdated,
-            LastExecuted = item.LastExecuted,
-            NextExecution = item.NextExecution,
-            ExecuteAsUser = originalExecuteAsUser ?? (item.ExecuteAsUser == null ? null : ToLocalUser(item.ExecuteAsUser)),
-            App = originalApp ?? (item.App == null ? null : ToLocalApp(item.App)),
-            Flow = originalFlow ?? (item.Flow == null ? null : ToLocalFlowDefinition(item.Flow)),
-            ExcludedEventsCalendar = originalExcludedEventsCalendar
-                ?? (item.ExcludedEventsCalendar == null ? null : ToLocalCalendarShallow(item.ExcludedEventsCalendar)),
-        };
-
-    private static DataScheduledTask ToInternalScheduledTask(ScheduledTask item) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            FlowId = item.FlowId,
-            ExcludedEventsCalendarId = item.ExcludedEventsCalendarId,
-            ExcludedEventsName = item.ExcludedEventsName,
-            Name = item.Name,
-            Description = item.Description,
-            ExecutionArgs = item.ExecutionArgs,
-            ScheduleInTicks = item.ScheduleInTicks,
-            CreatedBy = item.CreatedBy,
-            UpdatedBy = item.UpdatedBy,
-            ExecuteAs = item.ExecuteAs,
-            Created = item.Created,
-            LastUpdated = item.LastUpdated,
-            LastExecuted = item.LastExecuted,
-            NextExecution = item.NextExecution,
-            ExecuteAsUser = item.ExecuteAsUser == null ? null : ToExternalUser(item.ExecuteAsUser),
-            App = item.App == null ? null : ToExternalApp(item.App),
-            Flow = item.Flow == null ? null : ToExternalFlowDefinition(item.Flow),
-            ExcludedEventsCalendar = item.ExcludedEventsCalendar == null ? null : ToExternalCalendarShallow(item.ExcludedEventsCalendar),
-        };
-
-    static User ToLocalUser(cCoder.Data.Models.Security.User item) =>
-        new()
-        {
-            Id = item.Id,
-            DisplayName = item.DisplayName,
-            Email = item.Email,
-        };
-
-    static cCoder.Data.Models.Security.User ToExternalUser(User item) =>
-        new()
-        {
-            Id = item.Id,
-            DisplayName = item.DisplayName,
-            Email = item.Email,
-        };
-
-    static App ToLocalApp(cCoder.Data.Models.CMS.App item) =>
-        new()
-        {
-            Id = item.Id,
-            Name = item.Name,
-        };
-
-    static cCoder.Data.Models.CMS.App ToExternalApp(App item) =>
-        new()
-        {
-            Id = item.Id,
-            Name = item.Name,
-        };
-
-    static FlowDefinition ToLocalFlowDefinition(cCoder.Data.Models.Workflow.FlowDefinition item) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            Name = item.Name,
-            Description = item.Description,
-        };
-
-    static cCoder.Data.Models.Workflow.FlowDefinition ToExternalFlowDefinition(FlowDefinition item) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            Name = item.Name,
-            Description = item.Description,
-        };
-
-    static Calendar ToLocalCalendarShallow(cCoder.Data.Models.Planning.Calendar item) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            Name = item.Name,
-            Description = item.Description,
-        };
-
-    static cCoder.Data.Models.Planning.Calendar ToExternalCalendarShallow(Calendar item) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            Name = item.Name,
-            Description = item.Description,
-        };
+            : new()
+            {
+                Id = item.Id,
+                AppId = item.AppId,
+                FlowId = item.FlowId,
+                ExcludedEventsCalendarId = item.ExcludedEventsCalendarId,
+                ExcludedEventsName = item.ExcludedEventsName,
+                Name = item.Name,
+                Description = item.Description,
+                ExecutionArgs = item.ExecutionArgs,
+                ScheduleInTicks = item.ScheduleInTicks,
+                CreatedBy = item.CreatedBy,
+                UpdatedBy = item.UpdatedBy,
+                ExecuteAs = item.ExecuteAs,
+                Created = item.Created,
+                LastUpdated = item.LastUpdated,
+                LastExecuted = item.LastExecuted,
+                NextExecution = item.NextExecution,
+                ExecuteAsUser = item.ExecuteAsUser,
+                App = item.App,
+                Flow = item.Flow,
+                ExcludedEventsCalendar = item.ExcludedEventsCalendar,
+            };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

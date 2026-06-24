@@ -1,12 +1,7 @@
 using System.Security;
+using cCoder.Scheduling.Brokers;
 using cCoder.Scheduling.Brokers.Storage;
-using cCoder.Scheduling.Models;
-using cCoder.Data.Models.CMS;
 using cCoder.Data.Models.Planning;
-using cCoder.Data.Models.Security;
-using cCoder.Data.Models.Workflow;
-using DataCalendar = cCoder.Data.Models.Planning.Calendar;
-using IAuthorizationBroker = cCoder.Scheduling.Brokers.IAuthorizationBroker;
 
 
 namespace cCoder.Scheduling.Services.Foundations;
@@ -35,14 +30,9 @@ internal class CalendarService(
     public async ValueTask<Calendar> AddAsync(Calendar calendar)
     {
         authorizationBroker.Authorize(calendar.AppId, $"{nameof(Calendar)}_create");
-        DataCalendar newCalendar = new()
-        {
-            AppId = calendar.AppId,
-            Name = calendar.Name,
-            Description = calendar.Description,
-        };
+        Calendar newCalendar = CreateStorageCalendar(calendar);
 
-        DataCalendar result = await calendarBroker.AddCalendarAsync(newCalendar);
+        Calendar result = await calendarBroker.AddCalendarAsync(newCalendar);
         calendar.Id = result.Id;
         calendar.AppId = result.AppId;
         calendar.Name = result.Name;
@@ -53,15 +43,9 @@ internal class CalendarService(
     public async ValueTask<Calendar> UpdateAsync(Calendar calendar)
     {
         authorizationBroker.Authorize(calendar.AppId, $"{nameof(Calendar)}_update");
-        DataCalendar updateCalendar = new()
-        {
-            Id = calendar.Id,
-            AppId = calendar.AppId,
-            Name = calendar.Name,
-            Description = calendar.Description,
-        };
+        Calendar updateCalendar = CreateStorageCalendar(calendar);
 
-        DataCalendar result = await calendarBroker.UpdateCalendarAsync(updateCalendar);
+        Calendar result = await calendarBroker.UpdateCalendarAsync(updateCalendar);
         calendar.Id = result.Id;
         calendar.AppId = result.AppId;
         calendar.Name = result.Name;
@@ -77,79 +61,19 @@ internal class CalendarService(
             return;
 
         authorizationBroker.Authorize(calendar.AppId, $"{nameof(Calendar)}_delete");
-        _ = await calendarBroker.DeleteCalendarAsync(ToInternalCalendar(calendar));
+        _ = await calendarBroker.DeleteCalendarAsync(CreateStorageCalendar(calendar));
     }
 
-    private static Calendar ToExternalCalendar(
-        DataCalendar item,
-        App originalApp = null,
-        ICollection<CalendarEvent> originalEvents = null
-    ) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            Name = item.Name,
-            Description = item.Description,
-            App = originalApp ?? (item.App == null ? null : ToLocalApp(item.App)),
-            Events = originalEvents ?? item.Events?.Select(ToExternalCalendarEvent).ToArray(),
-        };
-
-    private static CalendarEvent ToExternalCalendarEvent(cCoder.Data.Models.Planning.CalendarEvent item) =>
-        new()
-        {
-            Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
-            Start = item.Start,
-            DurationInTicks = item.DurationInTicks,
-            CalendarId = item.CalendarId,
-        };
-
-    private static DataCalendar ToInternalCalendar(Calendar item) =>
-        new()
-        {
-            Id = item.Id,
-            AppId = item.AppId,
-            Name = item.Name,
-            Description = item.Description,
-            App = item.App == null ? null : ToExternalApp(item.App),
-            Events = item.Events?.Select(calendarEvent => new cCoder.Data.Models.Planning.CalendarEvent
+    private static Calendar CreateStorageCalendar(Calendar item) =>
+        item == null
+            ? null
+            : new()
             {
-                Id = calendarEvent.Id,
-                Name = calendarEvent.Name,
-                Description = calendarEvent.Description,
-                Start = calendarEvent.Start,
-                DurationInTicks = calendarEvent.DurationInTicks,
-                CalendarId = calendarEvent.CalendarId,
-            }).ToArray(),
-        };
-
-    static App ToLocalApp(cCoder.Data.Models.CMS.App item) =>
-        new()
-        {
-            Id = item.Id,
-            Name = item.Name,
-        };
-
-    static cCoder.Data.Models.CMS.App ToExternalApp(App item) =>
-        new()
-        {
-            Id = item.Id,
-            Name = item.Name,
-        };
+                Id = item.Id,
+                AppId = item.AppId,
+                Name = item.Name,
+                Description = item.Description,
+                App = item.App,
+                Events = item.Events,
+            };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

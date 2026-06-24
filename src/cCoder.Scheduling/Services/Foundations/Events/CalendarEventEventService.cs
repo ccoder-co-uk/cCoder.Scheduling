@@ -1,10 +1,6 @@
 using cCoder.Data;
 using cCoder.Scheduling.Brokers.Events;
-using cCoder.Scheduling.Models;
-using cCoder.Data.Models.CMS;
 using cCoder.Data.Models.Planning;
-using cCoder.Data.Models.Security;
-using cCoder.Data.Models.Workflow;
 using cCoder.Eventing.Models;
 
 
@@ -17,10 +13,10 @@ internal class CalendarEventEventService(
 {
     public async ValueTask RaiseCalendarEventAddEventAsync(CalendarEvent entity)
     {
-        EventMessage<cCoder.Data.Models.Planning.CalendarEvent> message = new()
+        EventMessage<CalendarEvent> message = new()
         {
             AuthInfo = new EventAuthInfo { SSOUserId = authInfo.SSOUserId },
-            Data = ToInternalCalendarEvent(entity),
+            Data = entity,
         };
 
         await calendarEventEventBroker.RaiseCalendarEventAddEventAsync(message);
@@ -28,10 +24,10 @@ internal class CalendarEventEventService(
 
     public async ValueTask RaiseCalendarEventUpdateEventAsync(CalendarEvent entity)
     {
-        EventMessage<cCoder.Data.Models.Planning.CalendarEvent> message = new()
+        EventMessage<CalendarEvent> message = new()
         {
             AuthInfo = new EventAuthInfo { SSOUserId = authInfo.SSOUserId },
-            Data = ToInternalCalendarEvent(entity),
+            Data = entity,
         };
 
         await calendarEventEventBroker.RaiseCalendarEventUpdateEventAsync(message);
@@ -39,43 +35,12 @@ internal class CalendarEventEventService(
 
     public async ValueTask RaiseCalendarEventDeleteEventAsync(CalendarEvent entity)
     {
-        EventMessage<cCoder.Data.Models.Planning.CalendarEvent> message = new()
+        EventMessage<CalendarEvent> message = new()
         {
             AuthInfo = new EventAuthInfo { SSOUserId = authInfo.SSOUserId },
-            Data = ToInternalCalendarEvent(entity),
+            Data = entity,
         };
 
         await calendarEventEventBroker.RaiseCalendarEventDeleteEventAsync(message);
     }
-
-    private static cCoder.Data.Models.Planning.CalendarEvent ToInternalCalendarEvent(
-        CalendarEvent item
-    ) =>
-        new()
-        {
-            Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
-            Start = item.Start,
-            DurationInTicks = item.DurationInTicks,
-            CalendarId = item.CalendarId,
-            Calendar = item.Calendar == null ? null : new cCoder.Data.Models.Planning.Calendar
-            {
-                Id = item.Calendar.Id,
-                AppId = item.Calendar.AppId,
-                Name = item.Calendar.Name,
-                Description = item.Calendar.Description,
-            },
-        };
 }
-
-
-
-
-
-
-
-
-
-
-
