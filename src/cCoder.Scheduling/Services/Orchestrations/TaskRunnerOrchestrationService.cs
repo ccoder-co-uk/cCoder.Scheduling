@@ -25,7 +25,10 @@ internal sealed class TaskRunnerOrchestrationService(
             .ToArray();
 
         if (dueTasks.Length == 0)
+        {
+            log.LogDebug("No scheduled tasks are due to run.");
             return;
+        }
 
         int[] calendarIds = dueTasks
             .Where(task => task.ExcludedEventsCalendarId != null)
@@ -100,6 +103,10 @@ internal sealed class TaskRunnerOrchestrationService(
         ScheduledTask updatedTask = await scheduledTaskService.MarkExecutedAsync(
             task.Id,
             incrementNextExecution: true);
+
+        if (updatedTask == null)
+            throw new InvalidOperationException(
+                $"Scheduled task {task.Id} could not be marked as executed.");
 
         if (task.ExecuteAsUser == null)
             throw new InvalidOperationException("User doesn't exist.");

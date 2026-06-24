@@ -32,6 +32,7 @@ public class ScheduledTaskBroker(ICoreContextFactory coreContextFactory) : ISche
         using CoreDataContext coreDataContext = coreContextFactory.CreateCoreContext();
 
         ScheduledTask task = coreDataContext.ScheduledTasks
+            .IgnoreQueryFilters()
             .Include(foundTask => foundTask.ExecuteAsUser)
             .Include(foundTask => foundTask.Flow)
             .FirstOrDefault(foundTask => foundTask.Id == id);
